@@ -4,42 +4,50 @@
     <title>ALENA - Calorie Tracker</title>
     <style>
         body {
-            background-color: #222;
-            color: white;
+            margin: 0;
             font-family: 'Arial', sans-serif;
             text-align: center;
+            color: #fff;
+            background-image: url("{{ url_for('static', filename='background.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
         }
 
-        h1, h2, p {
-            margin: 10px;
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
+        }
+
+        p {
+            font-size: 1.2rem;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
         }
 
         button {
-            background-color: #ff69b4;
+            background-color: #ff4081;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 1rem;
             margin-top: 10px;
-            color: white;
+            transition: all 0.3s ease;
         }
 
         button:hover {
-            background-color: #ff1493;
+            background-color: #e91e63;
         }
 
         input[type="file"] {
             margin-top: 10px;
             padding: 5px;
-            border-radius: 5px;
+            border-radius: 8px;
         }
 
         video, canvas {
@@ -47,46 +55,60 @@
             border-radius: 10px;
             margin-top: 10px;
         }
+
+        .container {
+            background: rgba(0,0,0,0.4);
+            padding: 20px 30px;
+            border-radius: 15px;
+        }
+
+        hr {
+            border: 1px solid #fff;
+            width: 50%;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body>
-    <h1>ALENA 🍔 Calorie Tracker 💖</h1>
-    <p>Zgjidh një metodë për të marrë foton e ushqimit:</p>
+    <div class="container">
+        <h1>🍔 ALENA Calorie Tracker 💖</h1>
+        <p>Zgjidh një metodë për të marrë foton e ushqimit:</p>
 
-    <!-- Ngarkim foto nga kompjuteri -->
-    <form method="POST" enctype="multipart/form-data">
-        <input type="file" name="food_image" accept="image/*">
-        <button type="submit">Analizo Ushqimin</button>
-    </form>
+        <!-- Ngarkim nga kompjuteri -->
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="food_image" accept="image/*">
+            <button type="submit">Analizo Ushqimin</button>
+        </form>
 
-    <hr style="width:50%; border:1px solid white; margin:20px 0;">
+        <hr>
 
-    <!-- Kamera live -->
-    <h2>Ose përdor kamerën live (selfie/back):</h2>
-    <video id="video" width="320" height="240" autoplay></video>
-    <br>
-    <button id="snap">Bëj Foto</button>
-    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+        <!-- Kamera opsionale -->
+        <h2>Ose përdor kamerën live:</h2>
+        <video id="video" width="320" height="240" autoplay></video>
+        <br>
+        <button id="snap">Bëj Foto</button>
+        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
 
-    <form id="cameraForm" method="POST">
-        <input type="hidden" name="food_image_camera" id="food_image_camera">
-        <button type="submit">Analizo Fotën nga Kamera</button>
-    </form>
+        <form id="cameraForm" method="POST">
+            <input type="hidden" name="food_image_camera" id="food_image_camera">
+            <button type="submit">Analizo Fotën nga Kamera</button>
+        </form>
 
-    {% if result %}
-        <h2>💖 {{ result }} 💖</h2>
-    {% endif %}
+        {% if result %}
+            <h2>💖 {{ result }} 💖</h2>
+        {% endif %}
+    </div>
 
     <script>
-        // Hap kamera
         const video = document.getElementById('video');
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-            .then(stream => video.srcObject = stream)
-            .catch(err => alert("Kamera nuk funksionon: " + err));
-
         const canvas = document.getElementById('canvas');
         const snapBtn = document.getElementById('snap');
         const foodInputCamera = document.getElementById('food_image_camera');
+
+        // Hap kamera (selfie/back opsionale)
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => video.srcObject = stream)
+            .catch(err => alert("Kamera nuk funksionon: " + err));
 
         snapBtn.addEventListener('click', () => {
             const context = canvas.getContext('2d');
