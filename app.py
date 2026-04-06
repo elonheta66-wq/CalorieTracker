@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request
 import base64
 import requests
 import re
@@ -11,11 +11,15 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 # Merr API key nga Environment Variable (vendos në Render)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-def analyze_food(image_filename):
+def analyze_food_base64(data_url):
     try:
-        # Krijo URL publike për foton
-        image_url = url_for('static', filename=f'uploads/{image_filename}', _external=True)
-        
+        img_str = re.search(r'base64,(.*)', data_url).group(1)
+        image_bytes = base64.b64decode(img_str)
+
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'camera_food.jpg')
+        with open(filepath, 'wb') as f:
+            f.write(image_bytes)
+
         headers = {"Authorization": f"Bearer {OPENAI_API_KEY}"}
         json_data = {
             "model": "gpt-4o-mini",
@@ -23,8 +27,8 @@ def analyze_food(image_filename):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Identify this food and estimate its calories. Answer shortly in format: Food name – Calories kcal."},
-                        {"type": "image_url", "image_url": {"url": image_url}}
+                        {"type": "text", "text": "Identify this food and estimate calories (short answer)."},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_str}"}}
                     ]
                 }
             ]
@@ -51,20 +55,15 @@ def home():
         if image:
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
             image.save(filepath)
-            result = analyze_food(image.filename)
+            result = analyze_food_base64(
+                f"data:image/jpeg;base64,{base64.b64encode(open(filepath,'rb').read()).decode()}"
+            )
 
     # Ngarkim nga kamera (opsional)
     elif request.method == "POST" and "food_image_camera" in request.form:
         data_url = request.form.get("food_image_camera")
         if data_url:
-            # Ruaj foton nga kamera
-            img_str = re.search(r'base64,(.*)', data_url).group(1)
-            image_bytes = base64.b64decode(img_str)
-            filename = "camera_food.jpg"
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            with open(filepath, 'wb') as f:
-                f.write(image_bytes)
-            result = analyze_food(filename)
+            result = analyze_food_base64(data_url)
 
     return render_template("index.html", result=result)
 
