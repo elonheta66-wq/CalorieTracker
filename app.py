@@ -15,7 +15,6 @@ def analyze_food_base64(data_url):
     try:
         img_str = re.search(r'base64,(.*)', data_url).group(1)
         image_bytes = base64.b64decode(img_str)
-
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], 'camera_food.jpg')
         with open(filepath, 'wb') as f:
             f.write(image_bytes)
@@ -27,7 +26,7 @@ def analyze_food_base64(data_url):
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": "Identify this food and estimate calories (short answer)."},
+                        {"type": "text", "text": "Identify this food and estimate calories. Answer short."},
                         {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_str}"}}
                     ]
                 }
@@ -41,8 +40,7 @@ def analyze_food_base64(data_url):
         )
 
         return response.json()["choices"][0]["message"]["content"]
-    except Exception as e:
-        print("Error:", e)
+    except:
         return "Gabim: nuk mund të analizoj foton"
 
 @app.route("/", methods=["GET", "POST"])

@@ -2,66 +2,71 @@
 <html>
 <head>
     <title>ALENA - Calorie Tracker</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to bottom, #ffecd2, #fcb69f);
+            background-color: #222;
+            color: white;
+            font-family: 'Arial', sans-serif;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            color: #333;
         }
-        h1 { font-size: 2em; margin-bottom: 0.5em; }
-        h2 { font-size: 1.2em; margin-top: 1em; }
+
+        h1, h2, p {
+            margin: 10px;
+        }
+
         button {
             background-color: #ff69b4;
             border: none;
             padding: 10px 20px;
-            margin-top: 10px;
             border-radius: 8px;
-            color: white;
-            font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
+            font-size: 16px;
+            margin-top: 10px;
+            color: white;
         }
-        button:hover { background-color: #ff1493; }
+
+        button:hover {
+            background-color: #ff1493;
+        }
+
         input[type="file"] {
             margin-top: 10px;
-            border-radius: 6px;
             padding: 5px;
+            border-radius: 5px;
         }
-        video, canvas { 
-            border: 2px solid #ff69b4; 
-            border-radius: 10px; 
-            margin-top: 10px; 
-            max-width: 100%;
-        }
-        .result { 
-            margin-top: 20px; 
-            background-color: rgba(255,255,255,0.8); 
-            padding: 10px 20px; 
-            border-radius: 10px; 
-            display: inline-block; 
-            color: #000;
+
+        video, canvas {
+            border: 2px solid white;
+            border-radius: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>ALENA 🍔</h1>
-    <p>Zgjidh një mënyrë për të marrë foton e ushqimit:</p>
+    <h1>ALENA 🍔 Calorie Tracker 💖</h1>
+    <p>Zgjidh një metodë për të marrë foton e ushqimit:</p>
 
-    <!-- Ngarkim nga kompjuteri -->
+    <!-- Ngarkim foto nga kompjuteri -->
     <form method="POST" enctype="multipart/form-data">
         <input type="file" name="food_image" accept="image/*">
         <button type="submit">Analizo Ushqimin</button>
     </form>
 
-    <h2>Ose përdor kamerën live (selfie/back)</h2>
-    <video id="video" autoplay playsinline></video>
+    <hr style="width:50%; border:1px solid white; margin:20px 0;">
+
+    <!-- Kamera live -->
+    <h2>Ose përdor kamerën live (selfie/back):</h2>
+    <video id="video" width="320" height="240" autoplay></video>
     <br>
     <button id="snap">Bëj Foto</button>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
 
     <form id="cameraForm" method="POST">
         <input type="hidden" name="food_image_camera" id="food_image_camera">
@@ -69,26 +74,26 @@
     </form>
 
     {% if result %}
-    <div class="result">💖 {{ result }} 💖</div>
+        <h2>💖 {{ result }} 💖</h2>
     {% endif %}
 
     <script>
+        // Hap kamera
         const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        const snapBtn = document.getElementById('snap');
-        const foodInputCamera = document.getElementById('food_image_camera');
-
-        // Kamera opsionale selfie/back
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
             .then(stream => video.srcObject = stream)
             .catch(err => alert("Kamera nuk funksionon: " + err));
 
+        const canvas = document.getElementById('canvas');
+        const snapBtn = document.getElementById('snap');
+        const foodInputCamera = document.getElementById('food_image_camera');
+
         snapBtn.addEventListener('click', () => {
             const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width=320, canvas.height=240);
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
             const dataURL = canvas.toDataURL('image/jpeg');
             foodInputCamera.value = dataURL;
-            alert("Foto e marrë! Kliko 'Analizo Fotën nga Kamera'");
+            alert("Foto e marrë nga kamera! Tani kliko 'Analizo Fotën nga Kamera'");
         });
     </script>
 </body>
