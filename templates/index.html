@@ -1,34 +1,59 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Calorie AI</title>
+    <title>ALENA - Calorie AI</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
         body {
             margin: 0;
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            background: url("{{ url_for('static', filename='2025_09_25_09_04_IMG_6980.JPG') }}") no-repeat center center/cover;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            z-index: 0;
+        }
+
         .card {
-            background: rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.15);
             backdrop-filter: blur(15px);
             padding: 25px;
-            border-radius: 20px;
-            text-align: center;
+            border-radius: 25px;
             width: 90%;
-            max-width: 400px;
+            max-width: 420px;
+            text-align: center;
             color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(20px);}
+            to {opacity: 1; transform: translateY(0);}
         }
 
         h1 {
-            margin-bottom: 10px;
+            margin: 0;
+            font-size: 32px;
+            letter-spacing: 2px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            opacity: 0.9;
         }
 
         input[type="file"] {
@@ -39,37 +64,44 @@
             margin-top: 10px;
             padding: 12px;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             background: linear-gradient(45deg, #ff6a88, #ff99ac);
             color: white;
             font-size: 16px;
             cursor: pointer;
             width: 100%;
+            transition: 0.3s;
         }
 
         button:hover {
-            opacity: 0.9;
+            transform: scale(1.05);
         }
 
         video {
             width: 100%;
-            border-radius: 10px;
+            border-radius: 15px;
             margin-top: 10px;
         }
 
         .result {
             margin-top: 15px;
             font-size: 18px;
-            background: rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 10px;
+            background: rgba(255,255,255,0.25);
+            padding: 12px;
+            border-radius: 12px;
         }
 
         select {
             margin-top: 10px;
-            padding: 8px;
+            padding: 10px;
             border-radius: 10px;
             border: none;
+            width: 100%;
+        }
+
+        hr {
+            border: 1px solid rgba(255,255,255,0.3);
+            margin: 20px 0;
         }
 
     </style>
@@ -79,8 +111,8 @@
 
 <div class="card">
 
-    <h1>🍔 Calorie AI</h1>
-    <p>Bëj foto ushqimi dhe zbulo kaloritë</p>
+    <h1>✨ ALENA</h1>
+    <p>AI që njeh ushqimin dhe llogarit kaloritë</p>
 
     <!-- Upload -->
     <form method="POST" enctype="multipart/form-data">
@@ -91,7 +123,7 @@
     <hr>
 
     <!-- Kamera -->
-    <h3>Kamera</h3>
+    <h3>📷 Kamera</h3>
 
     <select id="cameraSelect">
         <option value="environment">Back Camera</option>
@@ -122,10 +154,18 @@
     const input = document.getElementById('food_image_camera');
     const cameraSelect = document.getElementById('cameraSelect');
 
+    let currentStream;
+
     async function startCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: cameraSelect.value }
         });
+
+        currentStream = stream;
         video.srcObject = stream;
     }
 
@@ -135,9 +175,11 @@
     snap.addEventListener('click', () => {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
+
         canvas.getContext('2d').drawImage(video, 0, 0);
 
         input.value = canvas.toDataURL('image/jpeg');
+
         alert("Foto u kap! Kliko ANALIZO.");
     });
 </script>
